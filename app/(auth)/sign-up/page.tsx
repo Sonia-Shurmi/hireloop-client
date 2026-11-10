@@ -11,6 +11,13 @@ import { authClient } from "@/lib/auth-client"
 const inputClasses =
   "h-11! rounded-xl! border-white/10! bg-white/[0.04]! px-4! text-white! placeholder:text-zinc-500! focus-visible:border-brand-violet/60!"
 
+/* Values must match lib/auth.ts additionalFields.role */
+const roles = [
+  { label: "Jobseeker", value: "seeker" },
+  { label: "Recruiter", value: "recruiter" },
+  { label: "Admin", value: "admin" },
+] as const
+
 export default function SignUpPage() {
   const router = useRouter()
   const [pending, setPending] = React.useState(false)
@@ -29,6 +36,7 @@ export default function SignUpPage() {
       name: String(formData.fullName), // required — the name of the user
       email: String(formData.email), // required
       password: String(formData.password), // required — min 8, max 128 chars
+      role: String(formData.role), // "seeker" | "recruiter" | "admin" — stored on the user via additionalFields
       callbackURL: "/", // optional — where to redirect after sign-up completes
     })
 
@@ -111,6 +119,32 @@ export default function SignUpPage() {
             className={inputClasses}
           />
         </div>
+
+        <fieldset className="flex flex-col gap-2">
+          <legend className="text-sm font-medium text-zinc-300">
+            I am joining as
+          </legend>
+          <div
+            role="radiogroup"
+            aria-label="Account type"
+            className="grid grid-cols-3 gap-2"
+          >
+            {roles.map((role) => (
+              <label key={role.value} className="relative">
+                <input
+                  type="radio"
+                  name="role"
+                  value={role.value}
+                  defaultChecked={role.value === "seeker"}
+                  className="peer sr-only"
+                />
+                <span className="flex h-11 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-center text-xs font-medium text-zinc-400 transition-colors peer-checked:border-brand-violet! peer-checked:bg-brand-violet/15! peer-checked:text-white peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50 sm:text-sm">
+                  {role.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         {error && (
           <p role="alert" className="text-sm text-red-400">
