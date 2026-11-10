@@ -3,6 +3,7 @@ import { MenuIcon } from "lucide-react"
 import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/logo"
 import {
   Sheet,
   SheetClose,
@@ -18,21 +19,6 @@ const navigationLinks = [
   { label: "Company", href: "/company" },
   { label: "Pricing", href: "/pricing" },
 ] as const
-
-function Logo({ className }: React.ComponentProps<"a">) {
-  return (
-    <Link
-      href="/"
-      className={cn(
-        "inline-flex items-baseline text-[1.4rem] leading-none font-bold tracking-tight lowercase",
-        className
-      )}
-    >
-      <span className="text-brand-blue">hire</span>
-      <span className="text-brand-orange">loop</span>
-    </Link>
-  )
-}
 
 function NavLinks({ className }: { className?: string }) {
   return (
@@ -80,7 +66,7 @@ export function Navbar({ className }: React.ComponentProps<"header">) {
             Sign In
           </Link>
 
-          <Link href="/get-started" className={getStartedClasses}>
+          <Link href="/sign-up" className={getStartedClasses}>
             Get Started
           </Link>
         </div>
@@ -128,7 +114,7 @@ export function Navbar({ className }: React.ComponentProps<"header">) {
               <SheetClose
                 render={
                   <Link
-                    href="/get-started"
+                    href="/sign-up"
                     className={cn(
                       getStartedClasses,
                       "w-full min-h-11 text-base"
