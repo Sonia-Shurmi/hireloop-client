@@ -2,19 +2,47 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import { AuthShell } from "@/components/auth-shell"
 import { Input } from "@/components/ui/input"
+import { authClient } from "@/lib/auth-client"
 
 const inputClasses =
   "h-11! rounded-xl! border-white/10! bg-white/[0.04]! px-4! text-white! placeholder:text-zinc-500! focus-visible:border-brand-violet/60!"
 
 export default function SignUpPage() {
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const router = useRouter()
+  const [pending, setPending] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const data = Object.fromEntries(new FormData(event.currentTarget).entries())
-    console.log("[sign-up] form data:", data)
-    // TODO: integrate registration here
+    const formData = Object.fromEntries(
+      new FormData(event.currentTarget).entries()
+    )
+
+    setError(null)
+    setPending(true)
+
+    const { data, error: signUpError } = await authClient.signUp.email({
+      name: String(formData.fullName), // required — the name of the user
+      email: String(formData.email), // required
+      password: String(formData.password), // required — min 8, max 128 chars
+      callbackURL: "/", // optional — where to redirect after sign-up completes
+    })
+
+    setPending(false)
+
+    if (signUpError) {
+      console.log("[sign-up] failed:", signUpError.message)
+      setError(signUpError.message ?? "Something went wrong. Please try again.")
+      return
+    }
+
+    console.log("[sign-up] success:", data?.user)
+    // better-auth signs the user in right away (email verification is off)
+    router.push("/")
   }
 
   return (
@@ -77,17 +105,25 @@ export default function SignUpPage() {
             type="password"
             required
             minLength={8}
+            maxLength={128}
             autoComplete="new-password"
             placeholder="At least 8 characters"
             className={inputClasses}
           />
         </div>
 
+        {error && (
+          <p role="alert" className="text-sm text-red-400">
+            {error}
+          </p>
+        )}
+
         <button
           type="submit"
+          disabled={pending}
           className="inline-flex h-11 w-full shrink-0 items-center justify-center rounded-full bg-brand-violet px-6 text-sm font-semibold whitespace-nowrap text-white shadow-[0_0_24px_rgba(124,92,255,0.4)] transition-all outline-none select-none hover:bg-brand-violet/85 focus-visible:ring-3 focus-visible:ring-ring/50 active:translate-y-px disabled:pointer-events-none disabled:opacity-50"
         >
-          Create Account
+          {pending ? "Creating Account..." : "Create Account"}
         </button>
 
         <p className="text-center text-xs leading-relaxed text-zinc-500">
